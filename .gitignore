@@ -1,5 +1,6 @@
 env/
 __pycache__/
+data/
 build/
 dist/
 Spendr.spec
