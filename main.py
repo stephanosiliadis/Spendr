@@ -14,6 +14,37 @@ from utils.db import create_db_tables, insert_transaction, delete_transaction
 app = typer.Typer(invoke_without_command=True)
 
 
+# Function to normalize the transaction type entered using the flag
+def normalize_transaction_type(value: str) -> str:
+    if value is None:
+        return None
+
+    value = value.strip().lower()
+
+    if value in ("income", "i"):
+        return "Income"
+    elif value in ("expense", "e"):
+        return "Expense"
+    else:
+        raise typer.BadParameter("Type must be Income/Expense or I/E")
+
+
+# Function to validate the transaction amount entered using the flag.
+def validate_amount(value: float) -> float:
+    if value is None:
+        return None
+
+    if value <= 0:
+        raise typer.BadParameter("Amount must be a positive number.")
+
+    # Ensure max 2 decimal places
+    if round(value, 2) != value:
+        raise typer.BadParameter("Amount must have at most 2 decimal places.")
+
+    return value
+
+
+# Callback
 @app.callback(invoke_without_command=True)
 def menu(ctx: typer.Context):
     """Run the interactive SPENDR CLI menu."""
@@ -51,13 +82,13 @@ def menu(ctx: typer.Context):
 @app.command()
 def add(
     type: str = typer.Option(
-        None, "--type", "-t", help="Type of transaction (Income or Expense)"
+        ..., "--type", "-t", help="Type of transaction (Income or Expense)"
     ),
     amount: float = typer.Option(
-        None, "--amount", "-a", help="Amount of the transaction"
+        ..., "--amount", "-a", help="Amount of the transaction"
     ),
     description: str = typer.Option(
-        None, "--description", "-d", help="Description of the transaction"
+        ..., "--description", "-d", help="Description of the transaction"
     ),
     date: str = typer.Option(
         None,
@@ -70,11 +101,15 @@ def add(
     Insert a new transaction. You can provide options or fill them interactively.
     """
     # Interactive fallback if any parameter is missing
-    if type is None:
+    if type is not None:
+        type = normalize_transaction_type(type)
+    else:
         type = input_transaction_type(
             "Enter the type of the Transaction ((I)ncome or (E)xpense): "
         )
-    if amount is None:
+    if amount is not None:
+        amount = validate_amount(amount)
+    else:
         amount = input_transaction_amount("Enter the amount of the Transaction: ")
     if description is None:
         description = input("Enter the description of the Transaction: ")
@@ -117,9 +152,12 @@ def list():
 
 @app.command()
 def delete(
-    id: int = typer.Option(None, "--id", "-id", help="The ID of the transaction"),
+    id: int = typer.Option(..., "--id", "-i", help="The ID of the transaction"),
 ):
     """Delete a single transaction."""
+    if id <= 0:
+        typer.echo("ID must be a positive number.")
+        raise typer.Exit()
     transaction = retrieve_transaction(id)
 
     print()
