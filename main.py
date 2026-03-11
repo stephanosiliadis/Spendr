@@ -52,7 +52,9 @@ def menu(ctx: typer.Context):
         # Print Welcome Header and available actions.
         print("=== SPENDR CLI ===")
         while True:
-            header = "Available Actions:"
+            header = (
+                "Available Actions (Press 'q' at any time to return to the main menu):"
+            )
             actions = [
                 "Insert new transaction",
                 "Retrieve past transactions",
@@ -64,16 +66,20 @@ def menu(ctx: typer.Context):
             print()
 
             # Perform the necessary action using the handlers or exit.
-            if choice == 1:
-                insert_new_transaction()
-            elif choice == 2:
-                retrieve_past_transactions()
-            elif choice == 3:
-                delete_single_transaction()
-            elif choice == 4:
-                get_transaction_insights()
-            else:
-                break
+            try:
+                if choice == 1:
+                    insert_new_transaction()
+                elif choice == 2:
+                    retrieve_past_transactions()
+                elif choice == 3:
+                    delete_single_transaction()
+                elif choice == 4:
+                    get_transaction_insights()
+                else:
+                    break
+
+            except QuitToMenu:
+                print("\n[INFO] Returning to main menu...")
 
         # Print final Header.
         print("=== SPENDR SESSION ENDED ===")
@@ -105,17 +111,17 @@ def add(
         type = normalize_transaction_type(type)
     else:
         type = input_transaction_type(
-            "Enter the type of the Transaction ((I)ncome or (E)xpense): "
+            "Enter the type of the Transaction (I)ncome or (E)xpense: "
         )
     if amount is not None:
         amount = validate_amount(amount)
     else:
         amount = input_transaction_amount("Enter the amount of the Transaction: ")
     if description is None:
-        description = input("Enter the description of the Transaction: ")
+        description = safe_input("Enter the description of the Transaction: ")
         while description.strip() == "":
             print("Description cannot be empty.")
-            description = input("Enter the description of the Transaction: ")
+            description = safe_input("Enter the description of the Transaction: ")
 
     # Parse the date using our helper
     transaction_date = parse_transaction_date(date)

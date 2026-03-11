@@ -7,7 +7,17 @@ from rich.table import Table
 from rich.console import Console
 
 # Import local packages.
+from utils.exceptions import QuitToMenu
 from utils.parsetransactiondate import parse_transaction_date
+
+
+def safe_input(prompt: str) -> str:
+    value = input(prompt).strip()
+
+    if value.lower() == "q":
+        raise QuitToMenu()
+
+    return value
 
 
 def print_actions(header: str, actions: list[str]) -> int:
@@ -56,10 +66,10 @@ def input_transaction_type(message: str) -> str:
     Returns:
         transaction_type (str): The normalized transaction type, either "Income" or "Expense".
     """
-    transaction_type = input(message)
+    transaction_type = safe_input(message)
     while transaction_type.lower() not in ("i", "e", "income", "expense"):
         print("Invalid Option: for the type of the transaction.")
-        transaction_type = input("Was the Transaction an (I)ncome or an (E)xpense: ")
+        transaction_type = safe_input(message)
 
     # Normalize type.
     if transaction_type.lower() in ("i", "income"):
@@ -86,7 +96,7 @@ def input_transaction_amount(message: str) -> float:
     """
     amount = 0
     while True:
-        amount = input(message)
+        amount = safe_input(message)
         try:
             amount = float(amount)
             if amount > 0:
@@ -116,7 +126,7 @@ def input_transaction_date(message: str) -> date:
     """
     transaction_date = 0
     while True:
-        date_input = input(message).strip()
+        date_input = safe_input(message).strip()
         if date_input == "":
             transaction_date = datetime.today().date()
             break

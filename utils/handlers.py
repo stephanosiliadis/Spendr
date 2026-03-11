@@ -24,10 +24,10 @@ def insert_new_transaction():
     amount = input_transaction_amount("Enter the amount of the transaction: ")
 
     # ---------- D E S C R I P T I O N ----------
-    description = input("Enter the description of the transaction: ")
+    description = safe_input("Enter the description of the transaction: ")
     while description.strip() == "":
         print("Invalid Option: transaction description cannot be left empty.")
-        description = input("Enter the description of the transaction: ")
+        description = safe_input("Enter the description of the transaction: ")
 
     # ---------- D A T E ----------
     transaction_date = input_transaction_date(
@@ -87,7 +87,9 @@ def delete_single_transaction():
     # Get the id of the transaction.
     transaction_id = 0
     while True:
-        transaction_id = input("Enter the ID of the transaction you want to delete: ")
+        transaction_id = safe_input(
+            "Enter the ID of the transaction you want to delete: "
+        )
         try:
             transaction_id = int(transaction_id)
             if transaction_id >= 0:

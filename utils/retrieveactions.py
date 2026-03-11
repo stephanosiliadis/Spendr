@@ -1,7 +1,3 @@
-# Import standard library packages.
-from typing import Sequence, Tuple
-from datetime import date
-
 # Import local packages.
 from utils.io import *
 from utils.db import (
@@ -71,14 +67,14 @@ def action_by_type():
             - title (str): Table title string describing the type
     """
     transaction_type = input_transaction_type(
-        "Enter the transaction type ((I)ncome or (E)xpense): "
+        "Enter the transaction type (I)ncome or (E)xpense: "
     )
     transactions = retrieve_transactions_by_type(transaction_type)
     title = f"{transaction_type} transactions"
     return transactions, title
 
 
-def action_quit() -> Tuple[None, None]:
+def action_quit():
     """
     Quit the retrieval interface.
 
