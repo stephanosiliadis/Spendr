@@ -82,13 +82,13 @@ def menu(ctx: typer.Context):
 @app.command()
 def add(
     type: str = typer.Option(
-        ..., "--type", "-t", help="Type of transaction (Income or Expense)"
+        None, "--type", "-t", help="Type of transaction (Income or Expense)"
     ),
     amount: float = typer.Option(
-        ..., "--amount", "-a", help="Amount of the transaction"
+        None, "--amount", "-a", help="Amount of the transaction"
     ),
     description: str = typer.Option(
-        ..., "--description", "-d", help="Description of the transaction"
+        None, "--description", "-d", help="Description of the transaction"
     ),
     date: str = typer.Option(
         None,
