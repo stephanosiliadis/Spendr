@@ -5,6 +5,7 @@ from utils.db import (
     retrieve_transaction,
     delete_transaction,
     retrieve_transactions,
+    save_transactions,
 )
 from models.Transaction import Transaction
 from utils.retrieveactions import RETRIEVE_ACTIONS
@@ -75,8 +76,41 @@ def retrieve_past_transactions():
     print()
     if transactions:
         display_transactions(transactions, title)
+
+        # Ask the user if they want to save the retrieved transactions,
+        # only if the did not pick to retrieve all transactions.
+        if choice != 1:
+            while True:
+                save_choice = (
+                    safe_input("Do you want to save the retrieved transactions (y/n): ")
+                    .strip()
+                    .lower()
+                )
+
+                if save_choice in ("y", "yes"):
+                    # Ask for format
+                    header = "Save as:"
+                    actions = ["CSV", "JSON", "Excel", "Database File"]
+                    extension_choice = print_actions(header, actions)
+
+                    if extension_choice == 1:
+                        save_transactions(transactions, "CSV", title)
+                    elif extension_choice == 2:
+                        save_transactions(transactions, "JSON", title)
+                    elif extension_choice == 3:
+                        save_transactions(transactions, "Excel", title)
+                    else:
+                        save_transactions(transactions, "Database File", title)
+                    break
+
+                elif save_choice in ("n", "no"):
+                    print("[INFO] Skipping save...")
+                    break
+
+                else:
+                    print("Invalid Option: Please enter (y)es or (n)o.")
     else:
-        print("[INFO] No transactions found.")
+        print("[INFO] No transactions found...")
 
 
 def delete_single_transaction():
@@ -104,7 +138,7 @@ def delete_single_transaction():
 
     print()
     if not transaction:
-        print("[INFO] No transactions with the specified ID where found.")
+        print("[INFO] No transactions with the specified ID where found...")
         return
 
     # Transaction exists.
@@ -122,7 +156,7 @@ def delete_single_transaction():
     print()
     if ok.lower() in ("yes", "y"):
         delete_transaction(transaction_id)
-        print(f"[INFO] Transaction with id={transaction_id} successfully deleted.")
+        print(f"[INFO] Transaction with id={transaction_id} successfully deleted...")
     else:
         print("Aborting deletion process...")
         return
@@ -146,7 +180,7 @@ def get_transaction_insights():
     transactions = retrieve_transactions()
 
     if not transactions:
-        print("\n[INFO] No transactions found in the database.\n")
+        print("\n[INFO] No transactions found in the database...\n")
         return
 
     # Split transactions by type

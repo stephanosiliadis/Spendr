@@ -32,8 +32,10 @@ def action_by_date_range():
             - transactions (Sequence[TransactionRow]): Sequence of transactions within the date range
             - title (str): Table title string describing the range
     """
-    start_date = input_transaction_date("Enter the start date: ")
-    end_date = input_transaction_date("Enter the end date: ")
+    start_date = input_transaction_date("Enter the start date (YYYY-MM-DD): ")
+    end_date = input_transaction_date(
+        "Enter the end date (YYYY-MM-DD or press 'Enter' for today): "
+    )
     transactions = retrieve_transactions_by_date(start_date, end_date)
     title = f"Transactions from {start_date} to {end_date}"
     return transactions, title

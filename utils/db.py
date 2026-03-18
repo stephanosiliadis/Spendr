@@ -3,6 +3,9 @@ import os
 import sqlite3
 from datetime import date
 
+# Import third library packages.
+import pandas as pd
+
 # Import local packages.
 from models.Transaction import Transaction
 
@@ -244,3 +247,20 @@ def delete_transaction(transaction_id: int) -> None:
 
         # Commit the changes to the database.
         conn.commit()
+
+
+def save_transactions(transactions, format, title):
+    df = pd.DataFrame(
+        transactions, columns=["ID", "Type", "Amount", "Description", "Date"]
+    )
+    if format == "Excel":
+        with pd.ExcelWriter(f"data/{title}.xlsx") as writer:
+            df.to_excel(writer, index=False)
+    elif format == "CSV":
+        df.to_csv(f"data/{title}.csv", index=False)
+    elif format == "JSON":
+        df.to_json(f"data/{title}.json", orient="records", date_format="iso")
+    elif format == "Database File":
+        conn = sqlite3.connect(f"data/{title}.db")
+        df.to_sql("transactions", conn, if_exists="replace", index=False)
+        conn.close()
