@@ -171,7 +171,7 @@ def display_transactions(transactions: list[tuple], table_title: str) -> None:
     table.add_column("ID", justify="left", style="white", no_wrap=True)
     table.add_column("Type", justify="center")
     table.add_column("Amount", justify="center")
-    table.add_column("Description", justify="center", style="white")
+    table.add_column("Description", justify="left", style="white")
     table.add_column("Date", justify="center", style="white")
 
     # Fill the table.

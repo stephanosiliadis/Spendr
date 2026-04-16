@@ -1,7 +1,8 @@
 # Import standard library packages.
 import os
+import shutil
 import sqlite3
-from datetime import date
+from datetime import date, datetime
 
 # Import third library packages.
 import pandas as pd
@@ -264,3 +265,27 @@ def save_transactions(transactions, format, title):
         conn = sqlite3.connect(f"data/{title}.db")
         df.to_sql("transactions", conn, if_exists="replace", index=False)
         conn.close()
+
+
+def create_backup() -> None:
+    """
+    Create a backup copy of the current database file.
+
+    The backup file will be stored in the data directory with a timestamped name.
+
+    Returns:
+        str: Path to the backup file
+    """
+    source_path = os.path.join(DATA_DIR, DB_NAME)
+
+    # Ensure the source database exists
+    if not os.path.exists(source_path):
+        raise FileNotFoundError("Database file does not exist.")
+
+    # Create a timestamped backup filename
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_name = f"backup_{timestamp}.db"
+    backup_path = os.path.join(DATA_DIR, backup_name)
+
+    # Copy the database file
+    shutil.copy2(source_path, backup_path)

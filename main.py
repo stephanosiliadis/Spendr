@@ -1,3 +1,6 @@
+# Import standard library packages.
+import atexit
+
 # Import third-party packages.
 import typer
 
@@ -7,7 +10,12 @@ from utils.io import print_actions
 from utils.retrieveactions import RETRIEVE_ACTIONS
 from utils.parsetransactiondate import parse_transaction_date
 from utils.handlers import input_transaction_type, input_transaction_amount
-from utils.db import create_db_tables, insert_transaction, delete_transaction
+from utils.db import (
+    create_db_tables,
+    insert_transaction,
+    delete_transaction,
+    create_backup,
+)
 
 
 # Create app instance.
@@ -153,7 +161,7 @@ def list():
     if transactions:
         display_transactions(transactions, title)
     else:
-        print("[INFO] No transactions found.")
+        print("[INFO] No transactions found...")
 
 
 @app.command()
@@ -168,7 +176,7 @@ def delete(
 
     print()
     if not transaction:
-        print("[INFO] No transactions with the specified ID where found.")
+        print("[INFO] No transactions with the specified ID where found...")
         return
 
     # Transaction exists.
@@ -182,7 +190,7 @@ def delete(
     print()
     if ok.lower() in ("yes", "y"):
         delete_transaction(id)
-        print(f"[INFO] Transaction with id={id} successfully deleted.")
+        print(f"[INFO] Transaction with id={id} successfully deleted...")
     else:
         print("Aborting deletion process...")
         return
@@ -197,4 +205,5 @@ def insights():
 
 if __name__ == "__main__":
     create_db_tables()
+    atexit.register(create_backup)
     app()
