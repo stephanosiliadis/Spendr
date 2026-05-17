@@ -1,7 +1,7 @@
 # SPENDR CLI
 
 **Spendr CLI** is a lightweight command-line application for tracking personal finances.
-It allows you to **record income and expenses, retrieve past transactions, delete entries, and analyze financial insights** directly from the terminal.
+It allows you to **record income and expenses, retrieve past transactions, edit or delete entries, and analyze financial insights** directly from the terminal.
 
 The application is written in **Python** and uses:
 
@@ -17,6 +17,7 @@ Spendr can be used **interactively through a menu** or **through direct CLI comm
 
 * Add new **Income** or **Expense** transactions
 * Retrieve stored transactions
+* Edit transactions by ID
 * Delete transactions by ID
 * Display **financial insights**
 * Interactive CLI menu
@@ -101,8 +102,9 @@ Available Actions:
 1. Insert new transaction
 2. Retrieve past transactions
 3. Delete single transaction
-4. Get transaction insights
-5. End Session
+4. Edit single transaction
+5. Get transaction insights
+6. End Session
 ```
 
 This mode is ideal for casual users.
@@ -195,6 +197,18 @@ Proceed with deletion? (y/n)
 
 ---
 
+# Edit a Transaction
+
+Edit a transaction by ID. Spendr displays the matching transaction first and asks for confirmation before prompting for new values.
+
+```
+python main.py edit --id 3
+```
+
+Press ENTER for any field you want to keep unchanged.
+
+---
+
 # View Insights
 
 Display financial statistics calculated from your transactions.
@@ -250,6 +264,7 @@ You can distribute this file and it will work **without requiring Python or any 
 Spendr.exe
 Spendr.exe add -t Income -a 1200 -d "Salary" -D today
 Spendr.exe list
+Spendr.exe edit --id 5
 Spendr.exe delete --id 5
 Spendr.exe insights
 ```

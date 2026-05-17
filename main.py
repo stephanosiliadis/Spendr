@@ -67,6 +67,7 @@ def menu(ctx: typer.Context):
                 "Insert new transaction",
                 "Retrieve past transactions",
                 "Delete single transaction",
+                "Edit single transaction",
                 "Get transaction insights",
                 "End Sesssion",
             ]
@@ -82,6 +83,8 @@ def menu(ctx: typer.Context):
                 elif choice == 3:
                     delete_single_transaction()
                 elif choice == 4:
+                    edit_single_transaction()
+                elif choice == 5:
                     get_transaction_insights()
                 else:
                     break
@@ -194,6 +197,18 @@ def delete(
     else:
         print("Aborting deletion process...")
         return
+
+
+@app.command()
+def edit(
+    id: int = typer.Option(..., "--id", "-i", help="The ID of the transaction"),
+):
+    """Edit a single transaction."""
+    if id <= 0:
+        typer.echo("ID must be a positive number.")
+        raise typer.Exit()
+
+    edit_existing_transaction(id)
 
 
 @app.command()

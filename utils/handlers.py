@@ -4,11 +4,13 @@ from utils.db import (
     insert_transaction,
     retrieve_transaction,
     delete_transaction,
+    update_transaction,
     retrieve_transactions,
     save_transactions,
 )
 from models.Transaction import Transaction
 from utils.retrieveactions import RETRIEVE_ACTIONS
+from utils.parsetransactiondate import parse_transaction_date
 
 
 def insert_new_transaction():
@@ -160,6 +162,132 @@ def delete_single_transaction():
     else:
         print("Aborting deletion process...")
         return
+
+
+def _input_optional_transaction_type(message: str, current_value: str) -> str:
+    transaction_type = safe_input(message).strip()
+    while transaction_type != "" and transaction_type.lower() not in (
+        "i",
+        "e",
+        "income",
+        "expense",
+    ):
+        print("Invalid Option: for the type of the transaction.")
+        transaction_type = safe_input(message).strip()
+
+    if transaction_type == "":
+        return current_value
+    if transaction_type.lower() in ("i", "income"):
+        return "Income"
+    return "Expense"
+
+
+def _input_optional_transaction_amount(message: str, current_value: float) -> float:
+    while True:
+        amount = safe_input(message).strip()
+        if amount == "":
+            return current_value
+        try:
+            amount = float(amount)
+            if amount > 0:
+                return amount
+            print("Invalid Option: transaction amount must be a positive number.")
+        except ValueError:
+            print("Invalid Option: Please enter a number.")
+
+
+def _input_optional_transaction_date(message: str, current_value):
+    while True:
+        date_input = safe_input(message).strip()
+        if date_input == "":
+            return parse_transaction_date(str(current_value))
+        try:
+            return parse_transaction_date(date_input)
+        except ValueError:
+            print(
+                "Invalid Option: Unable to parse date. Try something like 'today', 'yesterday', or '2026-03-10'."
+            )
+
+
+def _input_transaction_edits(transaction: tuple) -> Transaction:
+    _, current_type, current_amount, current_description, current_date = transaction
+
+    print("Enter new values for the fields you want to edit.")
+    print("Press ENTER without typing a value to keep the current value.")
+
+    transaction_type = _input_optional_transaction_type(
+        f"Enter the new type ({current_type}) (I)ncome or (E)xpense: ",
+        current_type,
+    )
+    amount = _input_optional_transaction_amount(
+        f"Enter the new amount ({current_amount}): ",
+        current_amount,
+    )
+    description = safe_input(
+        f"Enter the new description ({current_description}): "
+    ).strip()
+    if description == "":
+        description = current_description
+    transaction_date = _input_optional_transaction_date(
+        f"Enter the new date ({current_date}) YYYY-MM-DD: ",
+        current_date,
+    )
+
+    return Transaction(transaction_type, amount, description, transaction_date)
+
+
+def edit_existing_transaction(transaction_id: int):
+    # First select the transaction to confirm that it is the correct one.
+    transaction = retrieve_transaction(transaction_id)
+
+    print()
+    if not transaction:
+        print("[INFO] No transactions with the specified ID where found...")
+        return
+
+    # Transaction exists.
+    display_transactions(transaction, "You will edit the following transaction:")
+    ok = input(
+        f"Proceed with the edit of the transaction with id={transaction_id} (y/n): "
+    )
+    while ok.lower() not in ("yes", "y", "no", "n"):
+        print("Invalid Option: Please enter (y)es or (n)o.")
+        ok = input(
+            f"Proceed with the edit of the transaction with id={transaction_id} (y/n): "
+        )
+
+    print()
+    if ok.lower() not in ("yes", "y"):
+        print("Aborting edit process...")
+        return
+
+    updated_transaction = _input_transaction_edits(transaction[0])
+    update_transaction(transaction_id, updated_transaction)
+    updated_transaction_row = retrieve_transaction(transaction_id)
+
+    print()
+    display_transactions(updated_transaction_row, "Transaction updated:")
+
+
+def edit_single_transaction():
+    # Header.
+    print("=== EDIT A SINGLE TRANSACTION ===")
+    print()
+
+    # Get the id of the transaction.
+    transaction_id = 0
+    while True:
+        transaction_id = safe_input("Enter the ID of the transaction you want to edit: ")
+        try:
+            transaction_id = int(transaction_id)
+            if transaction_id >= 0:
+                break
+            else:
+                print("Invalid Option: transaction id must be non-negative.")
+        except ValueError:
+            print("Invalid Option: Please enter a number.")
+
+    edit_existing_transaction(transaction_id)
 
 
 def get_transaction_insights():

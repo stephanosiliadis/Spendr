@@ -250,6 +250,41 @@ def delete_transaction(transaction_id: int) -> None:
         conn.commit()
 
 
+def update_transaction(transaction_id: int, transaction: Transaction) -> None:
+    """
+    Update a transaction in the database by its ID.
+
+    Args:
+        transaction_id (int): The ID of the transaction to update
+        transaction (Transaction): The new transaction values
+
+    Returns:
+        None
+    """
+    # Create the db connection and cursor instance.
+    with sqlite3.connect(os.path.join(DATA_DIR, DB_NAME)) as conn:
+        cursor = conn.cursor()
+
+        # Perform the Query.
+        cursor.execute(
+            """
+            UPDATE transactions
+            SET type=?, amount=?, description=?, date=?
+            WHERE id=?
+            """,
+            (
+                transaction.type,
+                transaction.amount,
+                transaction.description,
+                transaction.date.isoformat(),
+                transaction_id,
+            ),
+        )
+
+        # Commit the changes to the database.
+        conn.commit()
+
+
 def save_transactions(transactions, format, title):
     df = pd.DataFrame(
         transactions, columns=["ID", "Type", "Amount", "Description", "Date"]
